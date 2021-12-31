@@ -1,3 +1,9 @@
 [submodule "thirdparty/glog"]
 	path = thirdparty/glog
 	url = https://github.com/google/glog
+[submodule "thirdparty/benchmark"]
+	path = thirdparty/benchmark
+	url = https://github.com/google/benchmark/
+[submodule "thirdparty/googletest"]
+	path = thirdparty/googletest
+	url = https://github.com/google/googletest/
