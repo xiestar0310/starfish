@@ -33,6 +33,6 @@ Piece char_to_piece(const char c) {
 // NOTE: If you change the numbers for piece, don't forget to change the values
 // here
 char char_from_piece(const Piece piece) {
-  static std::string lookup_table = "PNBRQK..pnbrqk..";
+  static std::string lookup_table = "PNBRQK  pnbrqk  ";
   return lookup_table[static_cast<int>(piece)];
 }

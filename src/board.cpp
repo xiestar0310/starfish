@@ -105,6 +105,35 @@ std::string Board::to_fen() const {
   return result.str();
 }
 
+void Board::print_board() const {
+  std::string border = "   +---+---+---+---+---+---+---+---+";
+  std::stringstream temp;
+  int counter = 8;
+  for (int i = 0; i < 64; i++) {
+    if (i % 8 == 0) {
+      temp << '\n';
+      temp << border;
+      temp << '\n';
+      temp << ' ';
+      temp << counter;
+      temp << ' ';
+      temp << '|';
+      counter--;
+    }
+
+    temp << ' ';
+    temp << char_from_piece(pieces[i]);
+    temp << ' ';
+    temp << '|';
+  }
+  temp << '\n';
+  temp << border;
+  temp << '\n';
+  temp << "     a   b   c   d   e   f   g   h";
+  temp << '\n';
+  std::cout << temp.str() << std::endl;
+}
+
 /*
 Colour side_to_move;
 Piece pieces[64];
