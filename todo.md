@@ -8,9 +8,9 @@ Things to keep in mind for this section:
     into directories
 
 STEPS:
-- First, set up a bare bones CMake project
-- Write a simple hello world program and try out the compilation pipeline
-- Then, hook up glog, gbench, and gtest (the Google logging, benchmarking,
+* First, set up a bare bones CMake project
+* Write a simple hello world program and try out the compilation pipeline
+* Then, hook up glog, gbench, and gtest (the Google logging, benchmarking,
     and testing frameworks)
 
 PHASE 2: Designing various interfaces
