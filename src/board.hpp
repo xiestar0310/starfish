@@ -52,7 +52,7 @@ public:
   int static_evaluation() const;
   GameResult get_game_state() const;
   void print_board() const;
-  bool is_square_attacked(const Square sq);
+  bool is_square_attacked(const Square sq, const Colour side) const;
 
 private:
   void get_pawn_moves(std::vector<Move> &move_list,

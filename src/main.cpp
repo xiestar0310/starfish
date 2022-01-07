@@ -13,12 +13,13 @@ int main(int argc, char *argv[]) {
   google::InitGoogleLogging(argv[0]);
   LOG(INFO) << "Hello World";
 
-  std::string starting_fen = "4k3/8/8/1b6/8/8/8/4K2R w K - 0 1";
+  std::string starting_fen = "4k3/8/8/8/8/3b4/8/R3K2R w KQ - 0 1";
   Board board = Board(starting_fen);
   board.print_board();
   std::vector<Move> pseudo_legal_moves = board.generate_pseudo_legal_moves();
   std::cout << "Found " << pseudo_legal_moves.size()
             << " legal moves:" << std::endl;
+
   for (Move move : pseudo_legal_moves) {
     std::cout << string_from_square(move.from) << " to "
               << string_from_square(move.to) << std::endl;

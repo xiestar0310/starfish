@@ -132,12 +132,122 @@ void Board::print_board() const {
   temp << border;
   temp << '\n';
   temp << "     a   b   c   d   e   f   g   h";
-  temp << '\n';
+  temp << '\n' << '\n';
+  temp << "FEN: " << to_fen() << std::endl;
   std::cout << temp.str() << std::endl;
 }
 
-bool Board::is_square_attacked(const Square sq) {
-  side_to_move == White ? Black : White;
+// Is the given square attacked by the given side?
+bool Board::is_square_attacked(const Square sq, const Colour side) const {
+  const int file = square_file(sq);
+  const int rank = square_rank(sq);
+
+  if (piece_colour(pieces[sq]) == side)
+    return false;
+
+  // Pawns
+  const int capture_left = side == White ? 7 : -9;
+  const int capture_right = side == White ? 9 : -7;
+  const Piece side_pawn = side == White ? WhitePawn : BlackPawn;
+
+  // TODO: Check if these are correct
+  if (file > 0 && rank > 1 && pieces[sq + capture_left] == side_pawn) {
+    return true;
+  }
+  if (file < 7 && rank > 1 && pieces[sq + capture_right] == side_pawn) {
+    return true;
+  }
+
+  // Knights
+
+  const Piece side_knight = side == White ? WhiteKnight : BlackKnight;
+  const static std::array<std::pair<int, int>, 8> knight_offsets = {
+      std::make_pair(1, 2),   std::make_pair(2, 1),  std::make_pair(-1, -2),
+      std::make_pair(-2, -1), std::make_pair(1, -2), std::make_pair(-1, 2),
+      std::make_pair(-2, 1),  std::make_pair(2, -1)};
+  for (const auto &[dx, dy] : knight_offsets) {
+    const int new_file = file + dx;
+    const int new_rank = rank + dy;
+    if (0 <= new_file && new_file <= 7 && 0 <= new_rank && new_rank <= 7) {
+      const int target_sq = square_from_file_rank(new_file, new_rank);
+      if (pieces[target_sq] == side_knight)
+        return true;
+    }
+  }
+
+  // King
+  const Piece side_king = side == White ? WhiteKing : BlackKing;
+  const static std::array<std::pair<int, int>, 4> diagonal_offsets = {
+      std::make_pair(-1, 1), std::make_pair(-1, -1), std::make_pair(1, -1),
+      std::make_pair(1, 1)};
+  const static std::array<std::pair<int, int>, 4> ortho_offsets = {
+      std::make_pair(-1, 0), std::make_pair(1, 0), std::make_pair(0, -1),
+      std::make_pair(0, 1)};
+
+  for (const auto &[dx, dy] : diagonal_offsets) {
+    const int new_file = file + dx;
+    const int new_rank = rank + dy;
+    if (0 <= new_file && new_file <= 7 && 0 <= new_rank && new_rank <= 7) {
+      const int target_sq = square_from_file_rank(new_file, new_rank);
+      if (pieces[target_sq] == side_king)
+        return true;
+    }
+  }
+  for (const auto &[dx, dy] : ortho_offsets) {
+    const int new_file = file + dx;
+    const int new_rank = rank + dy;
+    if (0 <= new_file && new_file <= 7 && 0 <= new_rank && new_rank <= 7) {
+      const int target_sq = square_from_file_rank(new_file, new_rank);
+      if (pieces[target_sq] == side_king)
+        return true;
+    }
+  }
+
+  // Slidey ortho pieces
+  const Piece side_bishop = side == White ? WhiteBishop : BlackBishop;
+  const Piece side_rook = side == White ? WhiteRook : BlackRook;
+  const Piece side_queen = side == White ? WhiteQueen : BlackQueen;
+
+  for (const auto &[dx, dy] : ortho_offsets) {
+    int cur_file = file + dx, cur_rank = rank + dy;
+    while (true) {
+      if (!(0 <= cur_file && cur_file <= 7 && 0 <= cur_rank && cur_rank <= 7))
+        break;
+      const int target_sq = square_from_file_rank(cur_file, cur_rank);
+      const Piece target_piece = pieces[target_sq];
+      if (piece_colour(target_piece) == side &&
+          (target_piece == side_rook || target_piece == side_queen)) {
+        return true;
+      } else if (target_piece == InvalidPiece) {
+        cur_file += dx;
+        cur_rank += dy;
+      } else { // Encountered own coloured piece
+        break;
+      }
+    }
+  }
+
+  // Slidey diagonal pieces
+  for (const auto &[dx, dy] : diagonal_offsets) {
+    int cur_file = file + dx, cur_rank = rank + dy;
+    while (true) {
+      if (!(0 <= cur_file && cur_file <= 7 && 0 <= cur_rank && cur_rank <= 7))
+        break;
+      const int target_sq = square_from_file_rank(cur_file, cur_rank);
+      const Piece target_piece = pieces[target_sq];
+      if (piece_colour(target_piece) == side &&
+          (target_piece == side_bishop || target_piece == side_queen)) {
+        return true;
+      } else if (target_piece == InvalidPiece) {
+        cur_file += dx;
+        cur_rank += dy;
+      } else { // Encountered own coloured piece
+        break;
+      }
+    }
+  }
+
+  return false;
 }
 
 void Board::get_pawn_moves(std::vector<Move> &move_list,
@@ -318,13 +428,14 @@ void Board::get_queen_moves(std::vector<Move> &move_list,
   get_bishop_moves(move_list, location);
   get_rook_moves(move_list, location);
 }
+
 void Board::get_king_moves(std::vector<Move> &move_list,
                            const Square location) const {
   int file = square_file(location);
   int rank = square_rank(location);
   const std::array<std::pair<int, int>, 8> king_offsets = {
       std::make_pair(1, 0),  std::make_pair(1, 1),  std::make_pair(1, -1),
-      std::make_pair(0, 1),  std::make_pair(0, -1), std::make_pair(-1, -1),
+      std::make_pair(0, 1),  std::make_pair(0, -1), std::make_pair(-1, 1),
       std::make_pair(-1, 0), std::make_pair(-1, -1)};
 
   for (const auto &[dx, dy] : king_offsets) {
@@ -345,23 +456,29 @@ void Board::get_king_moves(std::vector<Move> &move_list,
 
   if (side_to_move == White) {
     if (castle_perms & WhiteShort && (pieces[F1] == InvalidPiece) &&
-        (pieces[G1] == InvalidPiece)) {
+        (pieces[G1] == InvalidPiece) && !is_square_attacked(E1, Black) &&
+        !is_square_attacked(F1, Black) && !is_square_attacked(G1, Black)) {
       move_list.emplace_back(location, G1, ShortCastle, InvalidPiece,
                              InvalidPiece);
     }
     if (castle_perms & WhiteLong && (pieces[B1] == InvalidPiece) &&
-        (pieces[C1] == InvalidPiece) && (pieces[D1] == InvalidPiece)) {
+        (pieces[C1] == InvalidPiece) && (pieces[D1] == InvalidPiece) &&
+        !is_square_attacked(E1, Black) && !is_square_attacked(D1, Black) &&
+        !is_square_attacked(C1, Black)) {
       move_list.emplace_back(location, C1, LongCastle, InvalidPiece,
                              InvalidPiece);
     }
   } else {
     if (castle_perms & BlackShort && (pieces[F8] == InvalidPiece) &&
-        (pieces[G8] == InvalidPiece)) {
+        (pieces[G8] == InvalidPiece) && !is_square_attacked(E8, White) &&
+        !is_square_attacked(F8, White) && !is_square_attacked(G8, White)) {
       move_list.emplace_back(location, G8, ShortCastle, InvalidPiece,
                              InvalidPiece);
     }
     if (castle_perms & BlackLong && (pieces[B8] == InvalidPiece) &&
-        (pieces[C8] == InvalidPiece) && (pieces[D8] == InvalidPiece)) {
+        (pieces[C8] == InvalidPiece) && (pieces[D8] == InvalidPiece) &&
+        !is_square_attacked(E8, White) && !is_square_attacked(D8, White) &&
+        !is_square_attacked(C8, White)) {
       move_list.emplace_back(location, C8, LongCastle, InvalidPiece,
                              InvalidPiece);
     }
