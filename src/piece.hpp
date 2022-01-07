@@ -1,5 +1,5 @@
 #pragma once
-
+#include "colour.hpp"
 // NOTE: If you change the numbers for piece, don't forget to change the values
 // here
 enum Piece {
@@ -22,3 +22,4 @@ enum Piece {
 
 Piece char_to_piece(const char c);
 char char_from_piece(const Piece piece);
+Colour piece_colour(const Piece piece);

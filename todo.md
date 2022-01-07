@@ -25,9 +25,9 @@ Things to keep in mind for this section:
     everything
 
 STEPS:
-- Design a viable Piece interface, including but not limited to:
-  - Storing the colour and piece type
-  - That's about it, there's not much to this, it's most likely an enum
+* Design a viable Piece interface, including but not limited to:
+  * Storing the colour and piece type
+  * That's about it, there's not much to this, it's most likely an enum
 
 - Design a viable Move interface, including but not limited to:
   - Constructor which takes the from, to squares, as well as an optional
@@ -35,9 +35,10 @@ STEPS:
   - Initial ideas: probably have to try and fit this compactly into a 64-bit
       integer
 
-- Design a viable Board interface, including but not limited to:
-  - Constructor which takes an optional fen string
+* Design a viable Board interface, including but not limited to:
+  * Constructor which takes an optional fen string
   - Copy constructor
+  * Print out board
   - makeMove
   - unmakeMove(?)
   - generatePseudolegalMoves(mask)

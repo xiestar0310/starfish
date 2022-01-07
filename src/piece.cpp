@@ -36,3 +36,12 @@ char char_from_piece(const Piece piece) {
   static std::string lookup_table = "PNBRQK  pnbrqk  ";
   return lookup_table[static_cast<int>(piece)];
 }
+
+Colour piece_colour(const Piece piece) {
+  if (piece == InvalidPiece) {
+    return InvalidColour;
+  } else if (piece < 8) {
+    return White;
+  }
+  return Black;
+}
