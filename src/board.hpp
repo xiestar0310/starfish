@@ -35,7 +35,7 @@ enum GameResult {
 
 class Board {
   colour_t side_to_move;
-  Piece pieces[64];
+  piece_t pieces[64];
   int castle_perms;
   square_t en_passant;
   int fifty_move;
@@ -50,20 +50,25 @@ public:
   std::string to_fen() const;
   std::vector<Move> generate_pseudo_legal_moves() const;
   std::vector<Move> generate_legal_moves() const;
-  void make_move(Move move);
+  void make_move(const Move move);
   void unmake_move();
   int static_evaluation() const;
   GameResult get_game_state() const;
   void print_board() const;
   bool is_square_attacked(const square_t sq, const colour_t side) const;
-  static square_t get_en_passant_capture(square_t en_passant,
-                                         colour_t side_to_move) {
-    return (side_to_move == White) ? en_passant - 8 : en_passant + 8;
+
+  static inline square_t get_en_passant_capture(const square_t en_passant,
+                                                const colour_t side_to_move) {
+    return en_passant - 8 * side_to_move;
   }
-  inline void add_piece(square_t add, Piece piece) { pieces[add] = piece; }
-  inline void remove_piece(square_t remove) { pieces[remove] = InvalidPiece; }
-  inline void move_piece(square_t from, square_t to) {
-    const Piece piece = pieces[from];
+  inline void add_piece(const square_t add, const piece_t piece) {
+    pieces[add] = piece;
+  }
+  inline void remove_piece(const square_t remove) {
+    pieces[remove] = InvalidPiece;
+  }
+  inline void move_piece(const square_t from, const square_t to) {
+    const piece_t piece = pieces[from];
     remove_piece(from);
     add_piece(to, piece);
   }

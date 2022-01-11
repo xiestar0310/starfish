@@ -16,7 +16,7 @@ Board::Board(const std::string &fen) {
                     en_passant_str = tokens[3], fifty_move_str = tokens[4],
                     full_move_str = tokens[5];
 
-  int square = 0;
+  square_t square = 0;
   for (const char c : fen_pieces) {
     if ('1' <= c && c <= '8') {
       const int num = c - '0';
@@ -59,7 +59,7 @@ std::string Board::to_fen() const {
   std::stringstream result;
 
   int num_empty = 0;
-  for (int square = 0; square < 64; ++square) {
+  for (square_t square = 0; square < 64; ++square) {
     if (square > 0 && square % 8 == 0) {
       if (num_empty > 0) {
         result << num_empty;
@@ -67,7 +67,7 @@ std::string Board::to_fen() const {
       }
       result << "/";
     }
-    const Piece piece = pieces[square];
+    const piece_t piece = pieces[square];
     if (piece == InvalidPiece) {
       num_empty++;
     } else {
@@ -148,7 +148,7 @@ bool Board::is_square_attacked(const square_t sq, const colour_t side) const {
   // Pawns
   const int capture_left = side == White ? 7 : -9;
   const int capture_right = side == White ? 9 : -7;
-  const Piece side_pawn = side == White ? WhitePawn : BlackPawn;
+  const piece_t side_pawn = side == White ? WhitePawn : BlackPawn;
 
   // TODO: Check if these are correct
   if (file > 0 && rank > 1 && pieces[sq + capture_left] == side_pawn) {
@@ -159,8 +159,7 @@ bool Board::is_square_attacked(const square_t sq, const colour_t side) const {
   }
 
   // Knights
-
-  const Piece side_knight = side == White ? WhiteKnight : BlackKnight;
+  const piece_t side_knight = side == White ? WhiteKnight : BlackKnight;
   const static std::array<std::pair<int, int>, 8> knight_offsets = {
       std::make_pair(1, 2),   std::make_pair(2, 1),  std::make_pair(-1, -2),
       std::make_pair(-2, -1), std::make_pair(1, -2), std::make_pair(-1, 2),
@@ -176,7 +175,7 @@ bool Board::is_square_attacked(const square_t sq, const colour_t side) const {
   }
 
   // King
-  const Piece side_king = side == White ? WhiteKing : BlackKing;
+  const piece_t side_king = side == White ? WhiteKing : BlackKing;
   const static std::array<std::pair<int, int>, 4> diagonal_offsets = {
       std::make_pair(-1, 1), std::make_pair(-1, -1), std::make_pair(1, -1),
       std::make_pair(1, 1)};
@@ -204,9 +203,9 @@ bool Board::is_square_attacked(const square_t sq, const colour_t side) const {
   }
 
   // Slidey ortho pieces
-  const Piece side_bishop = side == White ? WhiteBishop : BlackBishop;
-  const Piece side_rook = side == White ? WhiteRook : BlackRook;
-  const Piece side_queen = side == White ? WhiteQueen : BlackQueen;
+  const piece_t side_bishop = side == White ? WhiteBishop : BlackBishop;
+  const piece_t side_rook = side == White ? WhiteRook : BlackRook;
+  const piece_t side_queen = side == White ? WhiteQueen : BlackQueen;
 
   for (const auto &[dx, dy] : ortho_offsets) {
     int cur_file = file + dx, cur_rank = rank + dy;
@@ -214,7 +213,7 @@ bool Board::is_square_attacked(const square_t sq, const colour_t side) const {
       if (!(0 <= cur_file && cur_file <= 7 && 0 <= cur_rank && cur_rank <= 7))
         break;
       const int target_sq = square_from_file_rank(cur_file, cur_rank);
-      const Piece target_piece = pieces[target_sq];
+      const piece_t target_piece = pieces[target_sq];
       if (piece_colour(target_piece) == side &&
           (target_piece == side_rook || target_piece == side_queen)) {
         return true;
@@ -234,7 +233,7 @@ bool Board::is_square_attacked(const square_t sq, const colour_t side) const {
       if (!(0 <= cur_file && cur_file <= 7 && 0 <= cur_rank && cur_rank <= 7))
         break;
       const int target_sq = square_from_file_rank(cur_file, cur_rank);
-      const Piece target_piece = pieces[target_sq];
+      const piece_t target_piece = pieces[target_sq];
       if (piece_colour(target_piece) == side &&
           (target_piece == side_bishop || target_piece == side_queen)) {
         return true;
@@ -253,7 +252,7 @@ bool Board::is_square_attacked(const square_t sq, const colour_t side) const {
 void Board::get_pawn_moves(std::vector<Move> &move_list,
                            const square_t location) const {
   // Find start rank and end rank
-  const Piece pawn = pieces[location];
+  const piece_t pawn = pieces[location];
   const colour_t colour = piece_colour(pawn);
   const int start_rank = colour == White ? 1 : 6;
   const int last_rank = colour == White ? 6 : 1;
@@ -263,7 +262,7 @@ void Board::get_pawn_moves(std::vector<Move> &move_list,
   const int capture_left = colour == White ? -9 : 7;
   const int capture_right = colour == White ? -7 : 9;
   const colour_t opposite_colour = -side_to_move;
-  const Piece opposite_king = side_to_move == White ? BlackKing : WhiteKing;
+  const piece_t opposite_king = side_to_move == White ? BlackKing : WhiteKing;
   assert(piece_colour(pawn) == side_to_move);
 
   if (this_rank == start_rank) {
@@ -297,10 +296,10 @@ void Board::get_pawn_moves(std::vector<Move> &move_list,
                                pieces[location + 1]);
     }
   } else {
-    const Piece my_knight = side_to_move == White ? WhiteKnight : BlackKnight;
-    const Piece my_bishop = side_to_move == White ? WhiteBishop : BlackBishop;
-    const Piece my_rook = side_to_move == White ? WhiteRook : BlackRook;
-    const Piece /* oh no */ my_queen =
+    const piece_t my_knight = side_to_move == White ? WhiteKnight : BlackKnight;
+    const piece_t my_bishop = side_to_move == White ? WhiteBishop : BlackBishop;
+    const piece_t my_rook = side_to_move == White ? WhiteRook : BlackRook;
+    const piece_t /* oh no */ my_queen =
         side_to_move == White ? WhiteQueen : BlackQueen;
 
     // Promotions
@@ -355,7 +354,7 @@ void Board::get_knight_moves(std::vector<Move> &move_list,
     const int new_rank = rank + dy;
     if (0 <= new_file && new_file <= 7 && 0 <= new_rank && new_rank <= 7) {
       const square_t to_square = square_from_file_rank(new_file, new_rank);
-      const Piece to_piece = pieces[to_square];
+      const piece_t to_piece = pieces[to_square];
       if (to_piece == InvalidPiece) {
         move_list.emplace_back(location, to_square, Quiet, InvalidPiece,
                                InvalidPiece);
@@ -373,29 +372,28 @@ void Board::piece_move_helper(std::vector<Move> &move_list,
   const int rank = square_rank(location);
   // do all 4 possible diagonals
 
-  bool invalid = false;
   int new_t1 = t1;
   int new_t2 = t2;
-  while (!invalid) {
-    if ((file + new_t1 < 8) && (rank + new_t2 < 8) && (0 <= file + new_t1) &&
-        (0 <= rank + new_t2)) {
-      square_t target = square_from_file_rank(file + new_t1, rank + new_t2);
-      Piece target_piece = pieces[target];
-      if (target_piece == InvalidPiece) {
-        // if its invalid, add to move list
-        move_list.push_back(
-            Move(location, target, Quiet, InvalidPiece, InvalidPiece));
-        new_t1 += t1;
-        new_t2 += t2;
-      } else if (piece_colour(target_piece) != side_to_move) {
-        move_list.push_back(
-            Move(location, target, Capture, InvalidPiece, target_piece));
-        invalid = true;
-      } else {
-        invalid = true;
-      }
+  while (true) {
+    const int new_file = file + new_t1;
+    const int new_rank = rank + new_t2;
+    if (new_file < 0 || new_file >= 8 || new_rank < 0 || new_rank >= 8)
+      break;
+
+    const square_t target = square_from_file_rank(new_file, new_rank);
+    const piece_t target_piece = pieces[target];
+    if (target_piece == InvalidPiece) {
+      // if its invalid, add to move list
+      move_list.push_back(
+          Move(location, target, Quiet, InvalidPiece, InvalidPiece));
+      new_t1 += t1;
+      new_t2 += t2;
+    } else if (piece_colour(target_piece) != side_to_move) {
+      move_list.push_back(
+          Move(location, target, Capture, InvalidPiece, target_piece));
+      break;
     } else {
-      invalid = true;
+      break;
     }
   }
 }
@@ -426,7 +424,7 @@ void Board::get_king_moves(std::vector<Move> &move_list,
                            const square_t location) const {
   const int file = square_file(location);
   const int rank = square_rank(location);
-  const std::array<std::pair<int, int>, 8> king_offsets = {
+  static const std::array<std::pair<int, int>, 8> king_offsets = {
       std::make_pair(1, 0),  std::make_pair(1, 1),  std::make_pair(1, -1),
       std::make_pair(0, 1),  std::make_pair(0, -1), std::make_pair(-1, 1),
       std::make_pair(-1, 0), std::make_pair(-1, -1)};
@@ -436,7 +434,7 @@ void Board::get_king_moves(std::vector<Move> &move_list,
     const int new_rank = rank + dy;
     if (0 <= new_file && new_file <= 7 && 0 <= new_rank && new_rank <= 7) {
       const square_t to_square = square_from_file_rank(new_file, new_rank);
-      const Piece to_piece = pieces[to_square];
+      const piece_t to_piece = pieces[to_square];
       if (to_piece == InvalidPiece) {
         move_list.emplace_back(location, to_square, Quiet, InvalidPiece,
                                InvalidPiece);
@@ -519,7 +517,7 @@ King - S
 std::vector<Move> Board::generate_pseudo_legal_moves() const {
   std::vector<Move> result;
   for (square_t sq = 0; sq < 64; ++sq) {
-    const Piece piece = pieces[sq];
+    const piece_t piece = pieces[sq];
     if (piece_colour(piece) != side_to_move)
       continue;
     switch (piece) {
@@ -619,13 +617,13 @@ void Board::make_move(Move move) {
 square_t from;
 square_t to;
 MoveType type;
-Piece promotion_piece;
-Piece captured_piece;
+piece_t promotion_piece;
+piece_t captured_piece;
 */
 
 /*
 colour_t side_to_move;
-Piece pieces[64];
+piece_t pieces[64];
 int castle_perms;
 square_t en_passant;
 int fifty_move;

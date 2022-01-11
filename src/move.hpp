@@ -16,18 +16,15 @@ enum MoveType {
 };
 
 struct Move {
-  square_t from;
-  square_t to;
-  MoveType type;
-  Piece promotion_piece;
-  Piece captured_piece;
+  square_t from = InvalidSquare;
+  square_t to = InvalidSquare;
+  MoveType type = Quiet;
+  piece_t promotion_piece = InvalidPiece;
+  piece_t captured_piece = InvalidPiece;
 
 public:
-  Move()
-      : from(InvalidSquare), to(InvalidSquare), type(Quiet),
-        promotion_piece(InvalidPiece), captured_piece(InvalidPiece) {}
   Move(const square_t from, const square_t to, const MoveType type,
-       const Piece promotion_piece, const Piece captured_piece)
+       const piece_t promotion_piece, const piece_t captured_piece)
       : from(from), to(to), type(type), promotion_piece(promotion_piece),
         captured_piece(captured_piece) {}
 };

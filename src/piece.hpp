@@ -23,6 +23,24 @@ enum Piece {
 };
 using piece_t = int;
 
-Piece char_to_piece(const char c);
-char char_from_piece(const Piece piece);
-Colour piece_colour(const Piece piece);
+constexpr piece_t char_to_piece(const char c) {
+  const char *lookup_table = "PNBRQK  pnbrqk  ";
+  for (piece_t piece = 0; piece < 16; ++piece) {
+    if (c == lookup_table[piece])
+      return piece;
+  }
+  return InvalidPiece;
+}
+
+// NOTE: If you change the numbers for piece, don't forget to change the values
+// here
+constexpr char char_from_piece(const piece_t piece) {
+  const char *lookup_table = "PNBRQK  pnbrqk  ";
+  return lookup_table[piece];
+}
+
+constexpr colour_t piece_colour(const piece_t piece) {
+  if (piece == InvalidPiece)
+    return InvalidColour;
+  return (piece < 8) ? White : Black;
+}
