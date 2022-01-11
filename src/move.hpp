@@ -1,4 +1,6 @@
+
 #pragma once
+
 #include "piece.hpp"
 #include "square.hpp"
 

@@ -1,5 +1,7 @@
+
 #pragma once
 #include "colour.hpp"
+
 // NOTE: If you change the numbers for piece, don't forget to change the values
 // here
 enum Piece {

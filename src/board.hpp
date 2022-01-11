@@ -1,9 +1,12 @@
+
 #pragma once
+
 #include "colour.hpp"
 #include "move.hpp"
 #include "piece.hpp"
 #include "square.hpp"
 #include "utils.hpp"
+
 #include <iostream>
 #include <string>
 
@@ -58,13 +61,13 @@ public:
                ? static_cast<Square>(static_cast<int>(en_passant) - 8)
                : static_cast<Square>(static_cast<int>(en_passant) + 8);
   }
-  void add_piece(Square add, Piece piece) {
+  inline void add_piece(Square add, Piece piece) {
     pieces[static_cast<int>(add)] = piece;
   }
-  void remove_piece(Square remove) {
+  inline void remove_piece(Square remove) {
     pieces[static_cast<int>(remove)] = InvalidPiece;
   }
-  void move_piece(Square from, Square to) {
+  inline void move_piece(Square from, Square to) {
     Piece piece = pieces[static_cast<int>(from)];
     remove_piece(from);
     add_piece(to, piece);

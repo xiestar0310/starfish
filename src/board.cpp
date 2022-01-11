@@ -1,5 +1,8 @@
+
 #include "board.hpp"
+
 #include "utils.hpp"
+
 #include <array>
 #include <sstream>
 #include <string>
@@ -7,52 +10,49 @@
 #include <vector>
 
 Board::Board(const std::string &fen) {
-  std::vector<std::string> tokens = split_string(fen, ' ');
-  std::string fen_pieces = remove_char(tokens[0], '/');
+  const std::vector<std::string> tokens = split_string(fen, ' ');
+  const std::string fen_pieces = remove_char(tokens[0], '/');
+  const std::string side_to_move_str = tokens[1], castle_perms_str = tokens[2],
+                    en_passant_str = tokens[3], fifty_move_str = tokens[4],
+                    full_move_str = tokens[5];
 
   int square = 0;
-  for (char c : fen_pieces) {
+  for (const char c : fen_pieces) {
     if ('1' <= c && c <= '8') {
-      int num = c - '0';
+      const int num = c - '0';
       for (int i = 0; i < num; i++) {
-        pieces[square] = InvalidPiece;
-        square++;
+        pieces[square++] = InvalidPiece;
       }
-    } else if (char_to_piece(c) != InvalidPiece) {
-      pieces[square] = char_to_piece(c);
-      square++;
+    } else if (c != '/') {
+      pieces[square++] = char_to_piece(c);
     }
   }
 
-  if (tokens[1] == "w") {
-    side_to_move = White;
-  } else {
-    side_to_move = Black;
-  }
+  side_to_move = side_to_move_str == "w" ? White : Black;
 
   castle_perms = 0;
-
-  for (char c : tokens[2]) {
-    if (c == 'K') {
-      castle_perms += WhiteShort;
-    } else if (c == 'Q') {
-      castle_perms += WhiteLong;
-    } else if (c == 'k') {
-      castle_perms += BlackShort;
-    } else if (c == 'q') {
-      castle_perms += BlackLong;
+  for (const char c : castle_perms_str) {
+    switch (c) {
+    case 'K':
+      castle_perms |= WhiteShort;
+      break;
+    case 'Q':
+      castle_perms |= WhiteLong;
+      break;
+    case 'k':
+      castle_perms |= BlackShort;
+      break;
+    case 'q':
+      castle_perms |= BlackLong;
+      break;
+    default:
+      break;
     }
   }
 
-  if (tokens[3] == "-") {
-    en_passant = InvalidSquare;
-  } else {
-    en_passant = string_to_square(tokens[3]);
-  }
-
-  fifty_move = stoi(tokens[4]);
-
-  full_move = stoi(tokens[5]);
+  en_passant = string_to_square(en_passant_str);
+  fifty_move = stoi(fifty_move_str);
+  full_move = stoi(full_move_str);
 }
 
 std::string Board::to_fen() const {
@@ -108,7 +108,7 @@ std::string Board::to_fen() const {
 }
 
 void Board::print_board() const {
-  std::string border = "   +---+---+---+---+---+---+---+---+";
+  const static std::string border = "   +---+---+---+---+---+---+---+---+";
   std::stringstream temp;
   int counter = 8;
   for (int i = 0; i < 64; i++) {
@@ -274,7 +274,7 @@ void Board::get_pawn_moves(std::vector<Move> &move_list,
                              InvalidPiece, InvalidPiece);
   }
   if (this_rank != last_rank) {
-    // TOOD: 1 square up
+    // 1 square up
     if (pieces[location + forward] == InvalidPiece)
       move_list.emplace_back(location, location + forward, Quiet, InvalidPiece,
                              InvalidPiece);
@@ -342,15 +342,6 @@ void Board::get_pawn_moves(std::vector<Move> &move_list,
   }
 }
 
-/*
-
-Square from;
-Square to;
-MoveType type;
-Piece promotion_piece;
-Piece captured_piece;
-*/
-
 void Board::get_knight_moves(std::vector<Move> &move_list,
                              const Square location) const {
   const int file = square_file(location);
@@ -378,8 +369,8 @@ void Board::get_knight_moves(std::vector<Move> &move_list,
 
 void Board::piece_move_helper(std::vector<Move> &move_list,
                               const Square location, int t1, int t2) const {
-  int file = square_file(location);
-  int rank = square_rank(location);
+  const int file = square_file(location);
+  const int rank = square_rank(location);
   // do all 4 possible diagonals
 
   bool invalid = false;
@@ -408,6 +399,7 @@ void Board::piece_move_helper(std::vector<Move> &move_list,
     }
   }
 }
+
 void Board::get_bishop_moves(std::vector<Move> &move_list,
                              const Square location) const {
   piece_move_helper(move_list, location, 1, 1);
@@ -415,6 +407,7 @@ void Board::get_bishop_moves(std::vector<Move> &move_list,
   piece_move_helper(move_list, location, 1, -1);
   piece_move_helper(move_list, location, -1, -1);
 }
+
 void Board::get_rook_moves(std::vector<Move> &move_list,
                            const Square location) const {
   piece_move_helper(move_list, location, 1, 0);
@@ -431,8 +424,8 @@ void Board::get_queen_moves(std::vector<Move> &move_list,
 
 void Board::get_king_moves(std::vector<Move> &move_list,
                            const Square location) const {
-  int file = square_file(location);
-  int rank = square_rank(location);
+  const int file = square_file(location);
+  const int rank = square_rank(location);
   const std::array<std::pair<int, int>, 8> king_offsets = {
       std::make_pair(1, 0),  std::make_pair(1, 1),  std::make_pair(1, -1),
       std::make_pair(0, 1),  std::make_pair(0, -1), std::make_pair(-1, 1),
@@ -521,8 +514,6 @@ King - S
 - LongCastle
 - ShortCastle
 
-
-
 */
 
 std::vector<Move> Board::generate_pseudo_legal_moves() const {
@@ -565,11 +556,8 @@ std::vector<Move> Board::generate_pseudo_legal_moves() const {
 }
 
 std::vector<Move> Board::generate_legal_moves() const {
-  for (Piece piece : pieces) {
-    if (piece_colour(piece) == side_to_move) {
-    }
-  }
-  // return Move();
+  // TODO:
+  return {};
 }
 
 void Board::make_move(Move move) {

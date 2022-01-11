@@ -1,4 +1,6 @@
+
 #pragma once
+
 #include <string>
 
 enum Square {
@@ -69,13 +71,15 @@ enum Square {
   InvalidSquare
 };
 
-Square square_from_file_rank(const int file, const int rank);
+constexpr Square square_from_file_rank(const int file, const int rank) {
+  return static_cast<Square>(8 * (7 - rank) + file);
+}
 
 // Return the file (file a - file h) -> (0 - 7)
-int square_file(const Square sq);
+constexpr int square_file(const Square sq) { return sq % 8; }
 
 // Return the rank (rank 1 - rank 8) -> (0 - 7)
-int square_rank(const Square sq);
+constexpr int square_rank(const Square sq) { return 7 - sq / 8; }
 
 Square string_to_square(const std::string &str);
 std::string string_from_square(const Square sq);
