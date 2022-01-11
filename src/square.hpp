@@ -70,16 +70,17 @@ enum Square {
   H1,
   InvalidSquare
 };
+using square_t = int;
 
-constexpr Square square_from_file_rank(const int file, const int rank) {
-  return static_cast<Square>(8 * (7 - rank) + file);
+constexpr square_t square_from_file_rank(const int file, const int rank) {
+  return 8 * (7 - rank) + file;
 }
 
 // Return the file (file a - file h) -> (0 - 7)
-constexpr int square_file(const Square sq) { return sq % 8; }
+constexpr int square_file(const square_t sq) { return sq % 8; }
 
 // Return the rank (rank 1 - rank 8) -> (0 - 7)
-constexpr int square_rank(const Square sq) { return 7 - sq / 8; }
+constexpr int square_rank(const square_t sq) { return 7 - sq / 8; }
 
-Square string_to_square(const std::string &str);
-std::string string_from_square(const Square sq);
+square_t string_to_square(const std::string &str);
+std::string string_from_square(const square_t sq);

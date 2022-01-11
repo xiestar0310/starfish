@@ -21,6 +21,7 @@ enum Piece {
 
   InvalidPiece = 15,
 };
+using piece_t = int;
 
 Piece char_to_piece(const char c);
 char char_from_piece(const Piece piece);

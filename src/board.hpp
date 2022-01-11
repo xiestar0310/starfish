@@ -34,10 +34,10 @@ enum GameResult {
 };
 
 class Board {
-  Colour side_to_move;
+  colour_t side_to_move;
   Piece pieces[64];
   int castle_perms;
-  Square en_passant;
+  square_t en_passant;
   int fifty_move;
   int full_move;
 
@@ -55,37 +55,32 @@ public:
   int static_evaluation() const;
   GameResult get_game_state() const;
   void print_board() const;
-  bool is_square_attacked(const Square sq, const Colour side) const;
-  static Square get_en_passant_capture(Square en_passant, Colour side_to_move) {
-    return (side_to_move == White)
-               ? static_cast<Square>(static_cast<int>(en_passant) - 8)
-               : static_cast<Square>(static_cast<int>(en_passant) + 8);
+  bool is_square_attacked(const square_t sq, const colour_t side) const;
+  static square_t get_en_passant_capture(square_t en_passant,
+                                         colour_t side_to_move) {
+    return (side_to_move == White) ? en_passant - 8 : en_passant + 8;
   }
-  inline void add_piece(Square add, Piece piece) {
-    pieces[static_cast<int>(add)] = piece;
-  }
-  inline void remove_piece(Square remove) {
-    pieces[static_cast<int>(remove)] = InvalidPiece;
-  }
-  inline void move_piece(Square from, Square to) {
-    Piece piece = pieces[static_cast<int>(from)];
+  inline void add_piece(square_t add, Piece piece) { pieces[add] = piece; }
+  inline void remove_piece(square_t remove) { pieces[remove] = InvalidPiece; }
+  inline void move_piece(square_t from, square_t to) {
+    const Piece piece = pieces[from];
     remove_piece(from);
     add_piece(to, piece);
   }
 
 private:
   void get_pawn_moves(std::vector<Move> &move_list,
-                      const Square location) const;
+                      const square_t location) const;
   void get_knight_moves(std::vector<Move> &move_list,
-                        const Square location) const;
-  void piece_move_helper(std::vector<Move> &move_list, const Square location,
+                        const square_t location) const;
+  void piece_move_helper(std::vector<Move> &move_list, const square_t location,
                          int t1, int t2) const;
   void get_bishop_moves(std::vector<Move> &move_list,
-                        const Square location) const;
+                        const square_t location) const;
   void get_rook_moves(std::vector<Move> &move_list,
-                      const Square location) const;
+                      const square_t location) const;
   void get_queen_moves(std::vector<Move> &move_list,
-                       const Square location) const;
+                       const square_t location) const;
   void get_king_moves(std::vector<Move> &move_list,
-                      const Square location) const;
+                      const square_t location) const;
 };
