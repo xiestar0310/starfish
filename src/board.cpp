@@ -110,40 +110,31 @@ std::string Board::to_fen() const {
 void Board::print_board() const {
   const static std::string border = "   +---+---+---+---+---+---+---+---+";
   std::stringstream temp;
-  int counter = 8;
-  for (int i = 0; i < 64; i++) {
-    if (i % 8 == 0) {
-      temp << '\n';
-      temp << border;
-      temp << '\n';
-      temp << ' ';
-      temp << counter;
-      temp << ' ';
-      temp << '|';
-      counter--;
+  int rank = 8;
+  for (square_t sq = 0; sq < 64; sq++) {
+    if (sq % 8 == 0) {
+      temp << "\n"
+           << border << "\n"
+           << " " << rank << " |";
+      rank--;
     }
-
-    temp << ' ';
-    temp << char_from_piece(pieces[i]);
-    temp << ' ';
-    temp << '|';
+    temp << " " << char_from_piece(pieces[sq]) << " |";
   }
-  temp << '\n';
-  temp << border;
-  temp << '\n';
-  temp << "     a   b   c   d   e   f   g   h";
-  temp << '\n' << '\n';
+  temp << "\n"
+       << border << "\n"
+       << "     a   b   c   d   e   f   g   h"
+       << "\n\n";
   temp << "FEN: " << to_fen() << std::endl;
   std::cout << temp.str() << std::endl;
 }
 
 // Is the given square attacked by the given side?
 bool Board::is_square_attacked(const square_t sq, const colour_t side) const {
-  const int file = square_file(sq);
-  const int rank = square_rank(sq);
-
   if (piece_colour(pieces[sq]) == side)
     return false;
+
+  const int file = square_file(sq);
+  const int rank = square_rank(sq);
 
   // Pawns
   const int capture_left = side == White ? 7 : -9;
@@ -151,10 +142,12 @@ bool Board::is_square_attacked(const square_t sq, const colour_t side) const {
   const piece_t side_pawn = side == White ? WhitePawn : BlackPawn;
 
   // TODO: Check if these are correct
-  if (file > 0 && rank > 1 && pieces[sq + capture_left] == side_pawn) {
+  if (file > 0 && 0 <= sq + capture_left && sq + capture_left < 64 &&
+      pieces[sq + capture_left] == side_pawn) {
     return true;
   }
-  if (file < 7 && rank > 1 && pieces[sq + capture_right] == side_pawn) {
+  if (file < 7 && 0 <= sq + capture_right && sq + capture_right < 64 &&
+      pieces[sq + capture_right] == side_pawn) {
     return true;
   }
 
@@ -192,6 +185,7 @@ bool Board::is_square_attacked(const square_t sq, const colour_t side) const {
         return true;
     }
   }
+
   for (const auto &[dx, dy] : ortho_offsets) {
     const int new_file = file + dx;
     const int new_rank = rank + dy;
