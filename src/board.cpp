@@ -569,7 +569,71 @@ std::vector<Move> Board::generate_legal_moves() const {
     if (piece_colour(piece) == side_to_move) {
     }
   }
+  // return Move();
 }
+
+void Board::make_move(Move move) {
+  switch (move.type) {
+  case Quiet:
+    move_piece(move.from, move.to);
+    break;
+  case Capture:
+    remove_piece(move.to);
+    move_piece(move.from, move.to);
+    break;
+  case Promotion:
+    remove_piece(move.from);
+    add_piece(move.to, move.promotion_piece);
+    break;
+  case CapturePromote:
+    remove_piece(move.from);
+    remove_piece(move.to);
+    add_piece(move.to, move.promotion_piece);
+    break;
+  case EnPassant:
+    move_piece(move.from, move.to);
+    remove_piece(get_en_passant_capture(en_passant, side_to_move));
+    en_passant = InvalidSquare;
+    break;
+  case LongCastle:
+    if (side_to_move == White) {
+      move_piece(move.from, move.to);
+      move_piece(A1, D1);
+    } else {
+      move_piece(move.from, move.to);
+      move_piece(A8, D8);
+    }
+    break;
+  case ShortCastle:
+    if (side_to_move == White) {
+      move_piece(move.from, move.to);
+      move_piece(H1, F1);
+    } else {
+      move_piece(move.from, move.to);
+      move_piece(H8, F8);
+    }
+    break;
+  case DoublePawn:
+    move_piece(move.from, move.to);
+    if (side_to_move == White) {
+      en_passant = static_cast<Square>(static_cast<int>(move.to) + 8);
+    } else {
+      en_passant = static_cast<Square>(static_cast<int>(move.to) - 8);
+    }
+  }
+  side_to_move = (side_to_move == White) ? Black : White;
+  fifty_move++;
+  if (side_to_move == Black)
+    full_move++;
+}
+
+/*
+Square from;
+Square to;
+MoveType type;
+Piece promotion_piece;
+Piece captured_piece;
+*/
 
 /*
 Colour side_to_move;

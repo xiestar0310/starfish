@@ -53,6 +53,22 @@ public:
   GameResult get_game_state() const;
   void print_board() const;
   bool is_square_attacked(const Square sq, const Colour side) const;
+  static Square get_en_passant_capture(Square en_passant, Colour side_to_move) {
+    return (side_to_move == White)
+               ? static_cast<Square>(static_cast<int>(en_passant) - 8)
+               : static_cast<Square>(static_cast<int>(en_passant) + 8);
+  }
+  void add_piece(Square add, Piece piece) {
+    pieces[static_cast<int>(add)] = piece;
+  }
+  void remove_piece(Square remove) {
+    pieces[static_cast<int>(remove)] = InvalidPiece;
+  }
+  void move_piece(Square from, Square to) {
+    Piece piece = pieces[static_cast<int>(from)];
+    remove_piece(from);
+    add_piece(to, piece);
+  }
 
 private:
   void get_pawn_moves(std::vector<Move> &move_list,

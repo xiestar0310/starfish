@@ -29,11 +29,9 @@ STEPS:
   * Storing the colour and piece type
   * That's about it, there's not much to this, it's most likely an enum
 
-- Design a viable Move interface, including but not limited to:
-  - Constructor which takes the from, to squares, as well as an optional
+* Design a viable Move interface, including but not limited to:
+  * Constructor which takes the from, to squares, as well as an optional
       promotion piece and captured piece (required for unmaking)
-  - Initial ideas: probably have to try and fit this compactly into a 64-bit
-      integer
 
 * Design a viable Board interface, including but not limited to:
   * Constructor which takes an optional fen string
@@ -41,7 +39,7 @@ STEPS:
   * Print out board
   - makeMove
   - unmakeMove(?)
-  - generatePseudolegalMoves(mask)
+  * generatePseudolegalMoves(mask)
     - where mask filters the kinds of moves to generate
   - Initial ideas:
     - We can debate between square-centric, piece-centric, and bitboard-related
