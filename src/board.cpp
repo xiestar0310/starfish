@@ -361,10 +361,10 @@ void Board::get_knight_moves(std::vector<Move> &move_list,
 }
 
 void Board::piece_move_helper(std::vector<Move> &move_list,
-                              const square_t location, int t1, int t2) const {
+                              const square_t location, const int t1,
+                              const int t2) const {
   const int file = square_file(location);
   const int rank = square_rank(location);
-  // do all 4 possible diagonals
 
   int new_t1 = t1;
   int new_t2 = t2;
@@ -547,11 +547,30 @@ std::vector<Move> Board::generate_pseudo_legal_moves() const {
 }
 
 std::vector<Move> Board::generate_legal_moves() const {
-  // TODO:
-  return {};
+  std::vector<Move> result;
+  Board tmp(*this);
+  const std::vector<Move> pseudo_legal_moves = generate_pseudo_legal_moves();
+  for (const Move move : pseudo_legal_moves) {
+    if (tmp.make_move(move)) {
+      result.push_back(move);
+    }
+    tmp.unmake_move();
+  }
+  return result;
 }
 
-void Board::make_move(Move move) {
+square_t Board::king_square(const colour_t side) const {
+  const piece_t king = side == White ? WhiteKing : BlackKing;
+  for (square_t sq = 0; sq < 64; ++sq) {
+    if (pieces[sq] == king)
+      return sq;
+  }
+  assert(false && "King was not found");
+}
+
+// Makes the supplied move on the board: returns true if the resulting position
+// is legal: that is, if the move does not result in being in check.
+bool Board::make_move(const Move move) {
   switch (move.type) {
   case Quiet:
     move_piece(move.from, move.to);
@@ -600,37 +619,13 @@ void Board::make_move(Move move) {
       en_passant = move.to - 8;
     }
   }
-  side_to_move *= -1;
+  const colour_t old_side_to_move = side_to_move;
+  const colour_t new_side_to_move = old_side_to_move * -1;
+  side_to_move = new_side_to_move;
+
   fifty_move++; // TODO: Reset this if a pawn moved or a capture was played
-
-  if (side_to_move == Black)
+  if (old_side_to_move == Black)
     full_move++;
+
+  return !is_square_attacked(king_square(old_side_to_move), new_side_to_move);
 }
-
-/*
-square_t from;
-square_t to;
-MoveType type;
-piece_t promotion_piece;
-piece_t captured_piece;
-*/
-
-/*
-colour_t side_to_move;
-piece_t pieces[64];
-int castle_perms;
-square_t en_passant;
-int fifty_move;
-int full_move;
-*/
-
-/*
-std::string Board::to_fen() const {}
-std::vector<Move> Board::generate_legal_moves() const;
-void Board::make_move(Move move);
-void Board::unmake_move();
-int Board::static_evaluation() const;
-GameResult Board::get_game_state() const;
-void Board::print_board() const;
-
-*/

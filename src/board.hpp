@@ -50,11 +50,12 @@ public:
   std::string to_fen() const;
   std::vector<Move> generate_pseudo_legal_moves() const;
   std::vector<Move> generate_legal_moves() const;
-  void make_move(const Move move);
+  bool make_move(const Move move);
   void unmake_move();
   int static_evaluation() const;
   GameResult get_game_state() const;
   void print_board() const;
+  square_t king_square(const colour_t side) const;
   bool is_square_attacked(const square_t sq, const colour_t side) const;
 
   static inline square_t get_en_passant_capture(const square_t en_passant,
