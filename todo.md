@@ -1,10 +1,10 @@
 PHASE 1: Setting up the project
 ================================================================================
 Things to keep in mind for this section:
-- It might be nice to get a sense for what each framework does and what we're
+* It might be nice to get a sense for what each framework does and what we're
     using it for: for example, maybe to write some example tests, or example
     benchmarks, so we can see how everything fits together
-- It might also be nice to think a little about how to structure everything
+* It might also be nice to think a little about how to structure everything
     into directories
 
 STEPS:
@@ -16,10 +16,10 @@ STEPS:
 PHASE 2: Designing various interfaces
 ================================================================================
 Things to keep in mind for this section:
-- Since there's a ton of information about chess programming online, it's also
+* Since there's a ton of information about chess programming online, it's also
     important not to simply copy implementations or designs without first
     understanding them
-- We want the interfaces to be as modular and reusable as possible: for example,
+* We want the interfaces to be as modular and reusable as possible: for example,
     it should be theoretically possible to adjust the engine to play crazyhouse,
     or some other crazy variants without needing to completely rewrite
     everything
@@ -35,9 +35,9 @@ STEPS:
 
 * Design a viable Board interface, including but not limited to:
   * Constructor which takes an optional fen string
-  - Copy constructor
+  * Copy constructor
   * Print out board
-  - makeMove
+  * makeMove
   - unmakeMove(?)
   * generatePseudolegalMoves(mask)
     - where mask filters the kinds of moves to generate

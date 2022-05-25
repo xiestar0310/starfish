@@ -360,17 +360,17 @@ void Board::get_knight_moves(std::vector<Move> &move_list,
   }
 }
 
-void Board::piece_move_helper(std::vector<Move> &move_list,
-                              const square_t location, const int t1,
-                              const int t2) const {
+void Board::get_slide_move_helper(std::vector<Move> &move_list,
+                                  const square_t location, const int dx,
+                                  const int dy) const {
   const int file = square_file(location);
   const int rank = square_rank(location);
 
-  int new_t1 = t1;
-  int new_t2 = t2;
+  int new_dx = dx;
+  int new_dy = dy;
   while (true) {
-    const int new_file = file + new_t1;
-    const int new_rank = rank + new_t2;
+    const int new_file = file + new_dx;
+    const int new_rank = rank + new_dy;
     if (new_file < 0 || new_file >= 8 || new_rank < 0 || new_rank >= 8)
       break;
 
@@ -380,8 +380,8 @@ void Board::piece_move_helper(std::vector<Move> &move_list,
       // if its invalid, add to move list
       move_list.push_back(
           Move(location, target, Quiet, InvalidPiece, InvalidPiece));
-      new_t1 += t1;
-      new_t2 += t2;
+      new_dx += dx;
+      new_dy += dy;
     } else if (piece_colour(target_piece) != side_to_move) {
       move_list.push_back(
           Move(location, target, Capture, InvalidPiece, target_piece));
@@ -394,18 +394,18 @@ void Board::piece_move_helper(std::vector<Move> &move_list,
 
 void Board::get_bishop_moves(std::vector<Move> &move_list,
                              const square_t location) const {
-  piece_move_helper(move_list, location, 1, 1);
-  piece_move_helper(move_list, location, -1, 1);
-  piece_move_helper(move_list, location, 1, -1);
-  piece_move_helper(move_list, location, -1, -1);
+  get_slide_move_helper(move_list, location, 1, 1);
+  get_slide_move_helper(move_list, location, -1, 1);
+  get_slide_move_helper(move_list, location, 1, -1);
+  get_slide_move_helper(move_list, location, -1, -1);
 }
 
 void Board::get_rook_moves(std::vector<Move> &move_list,
                            const square_t location) const {
-  piece_move_helper(move_list, location, 1, 0);
-  piece_move_helper(move_list, location, -1, 0);
-  piece_move_helper(move_list, location, 0, 1);
-  piece_move_helper(move_list, location, 0, -1);
+  get_slide_move_helper(move_list, location, 1, 0);
+  get_slide_move_helper(move_list, location, -1, 0);
+  get_slide_move_helper(move_list, location, 0, 1);
+  get_slide_move_helper(move_list, location, 0, -1);
 }
 
 void Board::get_queen_moves(std::vector<Move> &move_list,
@@ -559,7 +559,7 @@ std::vector<Move> Board::generate_legal_moves() const {
   return result;
 }
 
-square_t Board::king_square(const colour_t side) const {
+square_t Board::get_king_square(const colour_t side) const {
   const piece_t king = side == White ? WhiteKing : BlackKing;
   for (square_t sq = 0; sq < 64; ++sq) {
     if (pieces[sq] == king)
@@ -627,5 +627,6 @@ bool Board::make_move(const Move move) {
   if (old_side_to_move == Black)
     full_move++;
 
-  return !is_square_attacked(king_square(old_side_to_move), new_side_to_move);
+  return !is_square_attacked(get_king_square(old_side_to_move),
+                             new_side_to_move);
 }

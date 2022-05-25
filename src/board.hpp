@@ -10,6 +10,8 @@
 #include <iostream>
 #include <string>
 
+// we start with 1111 (15) --> do castleType & cur_state == castleType
+// faster: check castleType & cur_state != 0
 enum CastlePerms {
   WhiteShort = 1,
   WhiteLong = 2,
@@ -18,6 +20,7 @@ enum CastlePerms {
 };
 
 enum GameResult {
+  // game is still in progress
   NotOver = 0,
   // white wins
   WhiteCheckmate,
@@ -48,20 +51,36 @@ public:
 public:
   Board(const std::string &fen = start_fen);
   std::string to_fen() const;
+
+  // generates all possible moves, not checking whether the king is in check
   std::vector<Move> generate_pseudo_legal_moves() const;
+
+  // generates all pseudo legal moves which do not expose the king
+  // into check
   std::vector<Move> generate_legal_moves() const;
+
   bool make_move(const Move move);
   void unmake_move();
+
+  // TODO: evaluates a position for who it favours (white/black)
   int static_evaluation() const;
+
+  // TODO: if the game has ended, how did it end
   GameResult get_game_state() const;
+
   void print_board() const;
-  square_t king_square(const colour_t side) const;
+
+  // gets the square the king is on (for checking for checks)
+  square_t get_king_square(const colour_t side) const;
   bool is_square_attacked(const square_t sq, const colour_t side) const;
 
-  static inline square_t get_en_passant_capture(const square_t en_passant,
-                                                const colour_t side_to_move) {
+  // gets the square that a piece has been captured on by en passant
+  constexpr static square_t
+  get_en_passant_capture(const square_t en_passant,
+                         const colour_t side_to_move) {
     return en_passant - 8 * side_to_move;
   }
+
   inline void add_piece(const square_t add, const piece_t piece) {
     pieces[add] = piece;
   }
@@ -75,12 +94,13 @@ public:
   }
 
 private:
+  // adds pseudo legal moves to a given move list by piece type
   void get_pawn_moves(std::vector<Move> &move_list,
                       const square_t location) const;
   void get_knight_moves(std::vector<Move> &move_list,
                         const square_t location) const;
-  void piece_move_helper(std::vector<Move> &move_list, const square_t location,
-                         int t1, int t2) const;
+  void get_slide_move_helper(std::vector<Move> &move_list,
+                             const square_t location, int dx, int dy) const;
   void get_bishop_moves(std::vector<Move> &move_list,
                         const square_t location) const;
   void get_rook_moves(std::vector<Move> &move_list,
